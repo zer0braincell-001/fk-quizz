@@ -1,0 +1,571 @@
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<title>Drill Hemoglobinopati</title>
+<style>
+  :root{
+    --bg:#F3F5F7; --surface:#FFFFFF; --surface-2:#EAEEF2; --raise:#F6F8FA;
+    --text:#1A2230; --muted:#5A6675; --faint:#8A94A2;
+    --border:#DDE3EA; --border-strong:#C6D0DA;
+    --accent:#33698F; --accent-ink:#244F6B; --accent-soft:#DEEAF1;
+    --good:#2A8A5E; --good-soft:#DEF0E8; --good-ink:#1E6B47;
+    --bad:#B4534A; --bad-soft:#F3E3E0; --bad-ink:#8C3B34;
+    --flag:#B5811C; --flag-soft:#F5EBD3; --flag-ink:#8A6210;
+    --shadow:0 1px 2px rgba(26,34,48,.05), 0 4px 16px -8px rgba(26,34,48,.16);
+    --radius:14px; --maxw:820px;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --bg:#12171C; --surface:#1A2027; --surface-2:#222A32; --raise:#252E37;
+      --text:#E7ECF1; --muted:#9AA6B2; --faint:#6E7A86;
+      --border:#2C353F; --border-strong:#3A4550;
+      --accent:#6BA8CC; --accent-ink:#8FC0DD; --accent-soft:#1E2E3A;
+      --good:#54B98A; --good-soft:#183227; --good-ink:#84D7B0;
+      --bad:#D38177; --bad-soft:#33211E; --bad-ink:#E7A79F;
+      --flag:#D6A945; --flag-soft:#302710; --flag-ink:#E7C877;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px -10px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12171C; --surface:#1A2027; --surface-2:#222A32; --raise:#252E37;
+    --text:#E7ECF1; --muted:#9AA6B2; --faint:#6E7A86;
+    --border:#2C353F; --border-strong:#3A4550;
+    --accent:#6BA8CC; --accent-ink:#8FC0DD; --accent-soft:#1E2E3A;
+    --good:#54B98A; --good-soft:#183227; --good-ink:#84D7B0;
+    --bad:#D38177; --bad-soft:#33211E; --bad-ink:#E7A79F;
+    --flag:#D6A945; --flag-soft:#302710; --flag-ink:#E7C877;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px -10px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{background:var(--bg); color:var(--text);
+    font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding-inline:16px; padding-block:0 40px;}
+
+  /* Header */
+  .topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:30;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:saturate(1.3) blur(10px); border-bottom:1px solid var(--border);}
+  .topbar-in{max-width:var(--maxw); margin:0 auto; padding:11px 16px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .brand{display:flex; align-items:baseline; gap:10px; margin-right:auto; min-width:0;}
+  .brand h1{font-family:"Spectral", Georgia, serif; font-weight:700; font-size:19px;
+    letter-spacing:-.01em; margin:0; text-wrap:balance;}
+  .brand .sub{font-size:12px; color:var(--muted); font-weight:500; white-space:nowrap;}
+  .score{display:flex; align-items:center; gap:8px; font-family:"IBM Plex Mono", monospace;
+    font-size:13px; font-weight:600; background:var(--surface); border:1px solid var(--border);
+    border-radius:999px; padding:5px 12px; font-variant-numeric:tabular-nums; box-shadow:var(--shadow);}
+  .score b{color:var(--good-ink)} .score .s2{color:var(--bad-ink)}
+  .score .dot{width:1px; height:14px; background:var(--border-strong)}
+  .progress{height:3px; background:var(--border); position:relative; overflow:hidden;}
+  .progress > i{position:absolute; inset:0 auto 0 0; width:0%;
+    background:linear-gradient(90deg, var(--accent), var(--accent-ink)); transition:width .35s ease;}
+
+  button{font-family:inherit; cursor:pointer}
+  .btn{appearance:none; border:1px solid var(--border-strong); background:var(--surface);
+    color:var(--text); font-size:13px; font-weight:600; border-radius:10px; padding:8px 12px;
+    display:inline-flex; align-items:center; gap:7px; transition:background .15s, border-color .15s, color .15s, transform .05s;}
+  .btn:hover{background:var(--surface-2); border-color:var(--faint)}
+  .btn:active{transform:translateY(1px)}
+  .btn[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink)}
+  .btn.ghost{border-color:transparent; background:transparent; color:var(--muted); padding:8px 10px}
+  .btn.ghost:hover{background:var(--surface-2); color:var(--text)}
+  .btn:disabled{opacity:.4; cursor:not-allowed}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px}
+
+  .tools{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:16px 0 12px}
+
+  /* Navigator grid */
+  .nav-wrap{background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:13px 14px; box-shadow:var(--shadow); margin-bottom:14px;}
+  .nav-head{display:flex; align-items:center; gap:10px; margin-bottom:11px; flex-wrap:wrap}
+  .nav-head .ttl{font-size:12px; font-weight:600; font-family:"IBM Plex Mono",monospace;
+    text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+  .nav-head .legend{display:flex; gap:12px; flex-wrap:wrap; margin-left:auto}
+  .legend span{font-size:11px; color:var(--muted); display:inline-flex; align-items:center; gap:5px}
+  .lg{width:10px; height:10px; border-radius:3px; display:inline-block; border:1px solid transparent}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(38px,1fr)); gap:7px}
+  .chip{position:relative; aspect-ratio:1/1; border:1px solid var(--border-strong); background:var(--raise);
+    border-radius:9px; font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600;
+    color:var(--muted); display:grid; place-items:center; padding:0;
+    font-variant-numeric:tabular-nums; transition:background .12s, border-color .12s, color .12s;}
+  .chip:hover{border-color:var(--accent); color:var(--text)}
+  .chip.correct{background:var(--good-soft); border-color:var(--good); color:var(--good-ink)}
+  .chip.wrong{background:var(--bad-soft); border-color:var(--bad); color:var(--bad-ink)}
+  .chip.revealed{background:var(--surface-2); border-color:var(--border-strong); color:var(--muted)}
+  .chip.current{outline:2.5px solid var(--accent); outline-offset:1px; border-color:var(--accent); color:var(--text)}
+  .chip.flagged::after{content:""; position:absolute; top:-3px; right:-3px; width:9px; height:9px;
+    background:var(--flag); border:1.5px solid var(--surface); border-radius:50%;}
+  .chip.hiddenf{display:none}
+
+  /* Question card */
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 18px 16px; box-shadow:var(--shadow);}
+  .qhead{display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap}
+  .qnum{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--accent-ink);
+    background:var(--accent-soft); border-radius:7px; padding:3px 10px; font-variant-numeric:tabular-nums}
+  .badge{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.03em;
+    text-transform:uppercase; padding:3px 8px; border-radius:6px; border:1px solid transparent; white-space:nowrap}
+  .b-image{background:var(--flag-soft); color:var(--flag-ink); border-color:color-mix(in srgb,var(--flag) 35%,transparent)}
+  .b-broken{background:var(--bad-soft); color:var(--bad-ink); border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+  .b-stray{background:var(--accent-soft); color:var(--accent-ink); border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+  .flagbtn{margin-left:auto; appearance:none; border:1px solid var(--border-strong); background:var(--surface);
+    color:var(--muted); font-size:12.5px; font-weight:600; border-radius:9px; padding:6px 11px;
+    display:inline-flex; align-items:center; gap:6px; transition:background .13s, color .13s, border-color .13s}
+  .flagbtn:hover{background:var(--surface-2); color:var(--text)}
+  .flagbtn.on{background:var(--flag-soft); border-color:var(--flag); color:var(--flag-ink)}
+  .qstate{font-size:11px; font-weight:600; font-family:"IBM Plex Mono",monospace; letter-spacing:.03em;
+    text-transform:uppercase; color:var(--faint)}
+  .qstate.ok{color:var(--good-ink)} .qstate.no{color:var(--bad-ink)} .qstate.rv{color:var(--muted)}
+  .qtext{font-size:16.5px; font-weight:500; margin:0 0 15px; text-wrap:pretty; line-height:1.5}
+  .opts{display:flex; flex-direction:column; gap:9px}
+  .opt{display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left; background:var(--raise);
+    border:1px solid var(--border); border-radius:11px; padding:12px 14px; font-size:14.5px; color:var(--text);
+    line-height:1.4; transition:background .13s, border-color .13s}
+  .opt:hover:not(:disabled){background:var(--surface-2); border-color:var(--border-strong)}
+  .opt:disabled{cursor:default}
+  .opt .key{flex:none; width:23px; height:23px; border-radius:6px; display:grid; place-items:center;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; background:var(--surface);
+    border:1px solid var(--border-strong); color:var(--muted); margin-top:1px}
+  .opt.correct{background:var(--good-soft); border-color:var(--good)}
+  .opt.correct .key{background:var(--good); border-color:var(--good); color:#fff}
+  .opt.correct .otext{color:var(--good-ink); font-weight:600}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+  .opt.wrong .key{background:var(--bad); border-color:var(--bad); color:#fff}
+  .opt.wrong .otext{color:var(--bad-ink)}
+  .opt.dim{opacity:.5}
+  .opt.picked{background:var(--accent-soft); border-color:var(--accent)}
+  .opt.picked .key{background:var(--accent); border-color:var(--accent); color:#fff}
+  .opt.picked .otext{color:var(--accent-ink); font-weight:600}
+  .chip.picked{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink)}
+  .qref{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint); font-weight:600}
+  .exam-bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:14px;
+    background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent);
+    border-radius:12px; padding:12px 14px; box-shadow:var(--shadow)}
+  .exam-bar .et{font-size:13.5px; font-weight:600; color:var(--text)}
+  .exam-bar .et small{display:block; font-weight:500; color:var(--muted); font-size:12px; margin-top:2px}
+  .exam-bar .btn{margin-left:auto}
+  .big-btn{background:var(--accent); border-color:var(--accent); color:#fff}
+  .big-btn:hover{background:var(--accent-ink); border-color:var(--accent-ink)}
+  #tExam[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .modal-bg{position:fixed; inset:0; background:rgba(10,15,20,.5); display:grid; place-items:center;
+    z-index:100; padding:20px}
+  .modal{background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); max-width:360px; width:100%; padding:18px}
+  .modal p{margin:0 0 16px; font-size:14.5px; color:var(--text); line-height:1.5}
+  .modal .row{display:flex; gap:10px; justify-content:flex-end}
+  .qfoot{margin-top:13px}
+  .reveal-btn{font-size:12.5px; color:var(--muted); background:transparent; border:1px dashed var(--border-strong);
+    border-radius:8px; padding:6px 12px; font-weight:600}
+  .reveal-btn:hover{color:var(--text); background:var(--surface-2)}
+  .exp{margin-top:13px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:12px 14px; font-size:13.5px; color:var(--muted); line-height:1.55}
+  .exp .lab{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--accent-ink); display:block; margin-bottom:4px}
+  .exp b{color:var(--text); font-weight:600}
+
+  /* Bottom pager */
+  .pager{display:flex; align-items:center; gap:12px; margin-top:16px}
+  .pager .count{margin:0 auto; font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600;
+    color:var(--muted); font-variant-numeric:tabular-nums}
+  .pgbtn{flex:none; min-width:104px; justify-content:center}
+
+  .footer{margin-top:22px; text-align:center; font-size:12px; color:var(--faint); line-height:1.6}
+
+  @media (max-width:480px){
+    .brand .sub{display:none}
+    .qtext{font-size:15.5px}
+    .grid{grid-template-columns:repeat(auto-fill, minmax(34px,1fr)); gap:6px}
+    .pgbtn{min-width:0; flex:1}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <h1>Drill Hemoglobinopati</h1>
+      <span class="sub">Genetika molekuler &middot; dr. Danus</span>
+    </div>
+    <div class="score" id="score" aria-live="polite"></div>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<div class="wrap">
+  <div class="tools">
+    <button class="btn" id="tOpts" title="Acak urutan pilihan jawaban">&#8646; Acak pilihan</button>
+    <button class="btn" id="tQord" title="Acak urutan soal">&#8646; Acak urutan soal</button>
+    <button class="btn" id="tExam" title="Mode ujian: kunci disembunyikan sampai selesai">&#9998; Mode ujian</button>
+    <button class="btn" id="tFlagFilter" aria-pressed="false" title="Tampilkan hanya soal bertanda">&#9873; Hanya bertanda</button>
+    <button class="btn ghost" id="tReset" title="Hapus jawaban & ulangi">&#8635; Ulangi</button>
+    <button class="btn ghost" id="tTheme" title="Ganti tema" style="margin-left:auto">&#9681; Tema</button>
+  </div>
+
+  <div class="nav-wrap">
+    <div class="nav-head">
+      <span class="ttl">Daftar soal</span>
+      <div class="legend">
+        <span><i class="lg" style="background:var(--good-soft); border-color:var(--good)"></i> Benar</span>
+        <span><i class="lg" style="background:var(--bad-soft); border-color:var(--bad)"></i> Salah</span>
+        <span><i class="lg" style="background:var(--surface-2); border-color:var(--border-strong)"></i> Dilihat</span>
+        <span><i class="lg" style="background:var(--flag); border-color:var(--flag)"></i> Ditandai</span>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="pager">
+    <button class="btn pgbtn" id="pPrev">&#8592; Sebelumnya</button>
+    <span class="count" id="pCount">1 / 71</span>
+    <button class="btn pgbtn" id="pNext">Berikutnya &#8594;</button>
+  </div>
+
+  <div class="exam-bar" id="examBar" hidden></div>
+
+  <div class="modal-bg" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <p id="modalMsg"></p>
+      <div class="row">
+        <button class="btn ghost" id="modalNo" type="button">Batal</button>
+        <button class="btn big-btn" id="modalYes" type="button">Ya</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    71 soal (dari 73, minus 2 korup) &middot; Sumber: PPT &ldquo;Dasar Genetika Molekuler Hemoglobinopati&rdquo; &mdash; dr. Danus Hermawan, Biokimia FK UNS.<br>
+    Penanda &ldquo;perlu gambar&rdquo; &amp; timing gestasi tertentu sebaiknya dicek ulang ke slide/kunci dosen.
+  </div>
+</div>
+
+<script>
+const DATA = [
+ {n:1,q:"Berapakah persentase kadar Hemoglobin Adult (Hb A) pada Hydrops fetalis?",o:["0%","98%","2%","20%","80%"],e:"Hydrops fetalis = delesi 4 gen α (--/--); tanpa rantai α, HbA tidak terbentuk. Tabel PPT: HbA <b>0%</b>."},
+ {n:2,q:"Berapakah persentase kadar Hemoglobin Adult (Hb A) pada silent carrier thalassemia?",o:["98%","0%","20%","80%","2%"],e:"Silent carrier α-thal (-α/αα) hampir normal. Tabel PPT: HbA <b>96–98%</b>."},
+ {n:3,q:"Apakah mutasi yang terjadi pada hemoglobin H disease?",o:["Delesi 3 rantai alfa","Delesi 4 rantai alfa","Delesi 2 rantai alfa","Delesi 1 rantai alfa","Delesi 3 rantai beta"],e:"HbH disease = --/-α: <b>3 gen α terdelesi</b>, hanya 1 tersisa (PPT: ‘only one intact α gene’)."},
+ {n:4,q:"Dimanakah lokus gen dalam sintesis rantai globin?",o:["kromosom 11 (rantai beta) dan 16 (rantai alfa)","kromosom 11 (rantai alfa) dan 16 (rantai beta)","kromosom 13 (rantai beta) dan 16 (rantai alfa)","kromosom 13 (rantai alfa) dan 16 (rantai beta)","kromosom 11 (rantai alfa) dan 6 (rantai beta)"],e:"PPT: keluarga α → <b>kromosom 16</b>; keluarga β → <b>kromosom 11</b>."},
+ {n:5,q:"Hemoglobin F (Hb F) adalah Hb utama pada fetus & newborn. Kapan Hb F mulai disintesis?",o:["usia kehamilan 12 minggu","usia kehamilan 8 minggu","usia kehamilan 10 minggu","usia kehamilan 16 minggu","usia kehamilan 14 minggu"],e:"PPT: menjelang <b>minggu ke-12</b> Hb embrionik digantikan Hb F. (PPT tidak menyebut angka ‘mulai’ yang eksak — secara biologis HbF muncul lebih dini.)"},
+ {n:6,q:"Hemoglobin Embrio (Hb E) adalah Hb primitif di yolk sac. Berapakah umur kehamilan Hb ini mulai dibentuk?",o:["8 minggu","10 minggu","12 minggu","16 minggu"],e:"PPT: Hb pertama disintesis pada periode embrionik ~<b>8 minggu</b> (Hb Gower/Portland). Opsi ke-5 pada sumber korup."},
+ {n:7,q:"Rantai polipeptida hemoglobin terdiri dari rantai alfa dan beta. Berapakah asam amino pembentuk rantai alfa?",o:["141","146","142","145","144"],e:"PPT: rantai α = <b>141</b> asam amino (β = 146)."},
+ {n:8,q:"Hemoglobinopati dengan mutasi pada terminal kodon dan ekstensi 31 asam amino pada rantai alfa → total 172 asam amino. Apakah tipenya?",o:["Hb Constant Spring","Hb E","Hb S","Hb Lepore","Hb M"],e:"PPT: <b>Hb Constant Spring</b> — kodon stop α142 UAA→CAA, translasi berlanjut +31 aa → 172 aa."},
+ {n:9,q:"Hemoglobinopati dengan mutasi pada kodon 26 gen β-globin (glutamic acid → lysin). Apakah variannya?",o:["Hb E","Hb S","Hb H","Hb Lepore","Hb Constant Spring"],e:"PPT: <b>Hb E</b> = mutasi kodon 26 β, Glu→Lys (umum di Asia)."},
+ {n:10,q:"Usia kehamilan 12 minggu terjadi perubahan komposisi Hb janin. Hb mana yang paling dominan?",o:["Hb F","Hb Gower 1","Hb Gower 2","Hb Portland 1","Hb A2"],e:"PPT: pada minggu ke-12 <b>Hb F (α2γ2)</b> menjadi dominan (70–100% Hb fetal)."},
+ {n:11,q:"Apakah gejala yang muncul pada infeksi virus rabies fase awal?",o:["flu-like syndrome","toxic shock syndrome","scalded skin syndrome","irritable bowel syndrome","Guillain-Barré Syndrome"],b:"stray",e:"Fase prodromal rabies = gejala <b>flu-like</b> (demam, malaise, nyeri kepala). Soal ini di luar materi hemoglobin — kemungkinan nyasar."},
+ {n:14,q:"Apakah jenis Hb paling banyak pada Hydrops fetalis?",o:["Hb Bart","Hb Portland","Hb H","Hb A","Hb A2"],e:"PPT: pada hydrops fetalis Hb dominan = <b>Hb Bart's (γ4)</b>, 70–80%."},
+ {n:15,q:"Apakah nama senyawa yang menghasilkan heme dengan bantuan enzim ferrochelatase?",o:["Protoporfirin III","Protoporfirinogen III","Coproporfirin III","Coproporfirinogen III","Porfobilinogen"],e:"PPT: ferrochelatase menambahkan Fe²⁺ ke <b>Protoporfirin</b> (IX) → Heme."},
+ {n:16,q:"Apakah hemoglobin terbanyak yang ditemukan pada kasus di atas?",o:["Hb Bart","Hb H","Hb S","Hb A2","Hb F"],b:"image",e:"Bergantung gambar sumber. Sesuai kunci = <b>Hb Bart</b> (konteks hydrops fetalis). Verifikasi gambar dosen."},
+ {n:17,q:"Manakah yang termasuk hemoglobin normal pada masa embrio?",o:["Hb Portland","Hb A1","Hb A2","Hb Bart","Hb H"],e:"PPT: Hb embrionik normal = Hb Gower 1, Hb Gower 2, <b>Hb Portland</b>."},
+ {n:18,q:"2 molekul ALA berkondensasi menjadi porfobilinogen di sitosol. Enzim yang berperan?",o:["ALA dehydratase","ALA synthase","Uroporphyrinogen I synthase","Uroporphyrinogen III synthase","Uroporphyrinogen decarboxylase"],e:"PPT: 2 ALA → PBG dikatalisis <b>ALA dehydratase</b> (di sitosol)."},
+ {n:19,q:"Pembentukan heme diawali kondensasi suksinil-CoA + glisin. Senyawa yang dihasilkan?",o:["Asam Amino-Levulinat","Porfobilinogen","Uroporfirin","Uroporfirinogen","Coproporfirin"],e:"PPT: suksinil-CoA + glisin → <b>δ-aminolevulinat (ALA)</b> di mitokondria."},
+ {n:20,q:"Apakah kelainan hemoglobin yang ditandai berkurangnya afinitas oksigen dan kekurangan enzim G6PD?",o:["Hb M","Hb H","Hb S","Hb C","Hb E"],b:"broken",e:"Kunci = <b>Hb M</b> (methemoglobin, Fe³⁺, non-fungsional). Catatan: kaitan ‘defisiensi G6PD’ pada soal ini rancu/tidak tepat secara konsep."},
+ {n:21,q:"Apakah nama hemoglobinopati dengan pemanjangan rantai alfa globin menjadi 172 asam amino?",o:["Hb Constant Spring","Hb Lepore","Hb H","Hb Bart","Hb S"],e:"Rantai α memanjang 141→172 aa = <b>Hb Constant Spring</b>."},
+ {n:22,q:"Hb S ditandai adanya sel sabit eritrosit. Rantai mana yang mengalami mutasi?",o:["Rantai beta","Rantai alfa","Rantai zeta","Rantai delta","Rantai gamma"],e:"Hb S = mutasi kodon 6 <b>rantai β</b> (Glu→Val)."},
+ {n:23,q:"Mutasi kodon 6: seharusnya glutamat tetapi menjadi valin. Nama hemoglobinopatinya?",o:["Hb S","Hb E","Hb C","Hb M","Hb H"],e:"PPT: Glu6Val (E6V) = <b>Hb S</b> (sickle cell)."},
+ {n:24,q:"Apakah hasil kondensasi 2 molekul asam amino levulinat dibantu enzim ALA dehydratase?",o:["Porphobilinogen","Uroporphyrinogen I","Uroporphyrinogen III","Protoporphyrinogen III","Protoporphyrin III"],e:"2 ALA + ALA dehydratase → <b>Porfobilinogen (PBG)</b>."},
+ {n:25,q:"Mutasi titik pada terminal kodon → pemanjangan asam amino menjadi 172. Jenisnya?",o:["Hb Constant Spring","Hb Lepore","Hb Barts","Hb S","Hb E"],e:"Kodon stop → sense, +31 aa → 172 aa = <b>Hb Constant Spring</b>."},
+ {n:26,q:"Manakah hemoglobin yang terbentuk pada janin usia kehamilan 8 minggu?",o:["Hb Gower","Hb Barts","Hb H","Hb A2","Hb A"],e:"PPT: 8 minggu pertama = Hb embrionik (<b>Hb Gower</b> 1/2, Portland)."},
+ {n:27,q:"Enzim untuk kondensasi suksinil CoA + glisin menjadi Asam Amino Levulinat?",o:["ALA synthase","ALA dehydratase","Uroporphyrinogen I synthase","Uroporphyrinogen III synthase","Uroporphyrinogen decarboxylase"],e:"Suksinil-CoA + glisin → ALA dikatalisis <b>ALA synthase</b> (mitokondria)."},
+ {n:28,q:"Berapakah panjang (jumlah asam amino) rantai beta globin?",o:["147","141","142","145","149"],b:"broken",e:"<b>SOAL BERMASALAH:</b> rantai β-globin = <b>146</b> asam amino, tetapi opsi 146 tidak tersedia → tidak ada jawaban benar. Kunci pola sumber = opsi pertama (147), tetapi itu keliru."},
+ {n:29,q:"Dimanakah letak kromosom rantai Alfa Globin?",o:["Kromosom 16","Kromosom 11","Kromosom 12","Kromosom 14","Kromosom 18"],e:"PPT: gen α globin di <b>kromosom 16</b>."},
+ {n:30,q:"Mutasi asam amino urutan nomor 26 (seharusnya glutamin, digantikan Lisin). Jenis kelainannya?",o:["Hb E","Hb S","Hb E","Hb M","Hb Constant Spring"],e:"Kodon 26 β, Glu→Lys = <b>Hb E</b>. Catatan: opsi ‘Hb E’ tertulis dua kali di sumber; yang dimaksud glutamic acid, bukan glutamin."},
+ {n:31,q:"Kelainan hemoglobin karena mutasi Glutamin → Lisin pada urutan asam amino nomor 6?",o:["Hb C","Hb S","Hb M","Hb H","Hb Constant Spring"],e:"PPT: Glu6Lys = <b>Hb C</b> (Afrika Barat). Bandingkan Glu6Val = Hb S."},
+ {n:32,q:"Apakah jenis hemoglobin yang menyebabkan anemia sickle cell?",o:["Hb S","Hb C","Hb E","Hb Barts","Hb M"],e:"Sickle cell anemia = <b>Hb S</b>."},
+ {n:33,q:"Enzim yang membantu kondensasi Suksinil koA + Glisin menjadi aminolevulinat (ALA)?",o:["ALA sintase","ALA dehidratase","Fero chelatase","Uroporfirinogen I sintase","Uroporfirinogen dekarboksilase"],e:"Suksinil-CoA + glisin → ALA oleh <b>ALA sintase</b>."},
+ {n:34,q:"Jenis alfa thalassemia dengan 3 rantai alfa dan secara klinis tampak seperti orang sehat?",o:["Silent carrier","Minor","HbH disease","Bart Hydrops fetalis","Trait"],e:"PPT: <b>Silent carrier</b> = -α/αα (3 gen α aktif), tampak sehat."},
+ {n:35,q:"Berapakah persentase Hemoglobin A (Hb A) pada kasus di atas?",o:["0%","20%","80%","98%","2%"],b:"image",e:"Bergantung kasus/gambar sumber. Kunci = <b>0%</b> (konteks hydrops fetalis). Verifikasi gambar dosen."},
+ {n:36,q:"Apakah hemoglobin paling dominan pada kasus seperti foto di atas?",o:["Hemoglobin Barts","Hemoglobin A","Hemoglobin S","Hemoglobin H","Hemoglobin M"],b:"image",e:"Bergantung foto sumber. Kunci = <b>Hb Barts</b> (konteks hydrops fetalis). Verifikasi gambar dosen."},
+ {n:37,q:"Jenis hemoglobinopati dengan mutasi penggantian asam nukleat menjadi valin pada kodon 6?",o:["Hemoglobin S","Hemoglobin C","Hemoglobin E","Hemoglobin H","Hemoglobin M"],e:"Kodon 6 → Val = <b>Hb S</b>."},
+ {n:38,q:"Berapakah jumlah asam amino rantai alfa globin pada Hb Constant Spring?",o:["172 asam amino","176 asam amino","177 asam amino","175 asam amino","171 asam amino"],e:"PPT: Hb Constant Spring = 141 + 31 = <b>172</b> asam amino."},
+ {n:39,q:"Pada umur kehamilan berapakah Hemoglobin E (Hb E) digantikan oleh Hemoglobin F (Hb F)?",o:["12 minggu","16 minggu","24 minggu","32 minggu","36 minggu"],e:"PPT: menjelang <b>minggu ke-12</b> Hb embrionik digantikan Hb F."},
+ {n:40,q:"Pada umur kehamilan berapakah mulai dibentuk hemoglobin E (Hb E)?",o:["8 minggu","12 minggu","16 minggu","24 minggu","4 minggu"],e:"PPT: Hb embrionik dominan pada <b>8 minggu</b> pertama. (‘Mulai dibentuk’ tidak dinyatakan eksak di PPT.)"},
+ {n:41,q:"Berapakah jumlah asam amino rantai beta globin?",o:["146 asam amino","141 asam amino","142 asam amino","144 asam amino","145 asam amino"],e:"PPT: rantai β = <b>146</b> asam amino."},
+ {n:42,q:"Dimanakah letak rantai alfa globin?",o:["Kromosom 16","Kromosom 15","Kromosom 14","Kromosom 12","Kromosom 11"],e:"PPT: gen α globin di <b>kromosom 16</b>."},
+ {n:43,q:"Berapakah persentase Hb Barts pada penderita Hydrops fetalis?",o:["80%","0%","50%","98%","20%"],e:"PPT (tabel): Hb Barts pada hydrops fetalis = <b>70–80%</b>."},
+ {n:44,q:"Berapakah persentase kadar Hemoglobin A (HbA) pada penderita silent carrier thalassemia?",o:["98%","0%","50%","20%","80%"],e:"PPT (tabel): HbA silent carrier = <b>96–98%</b>."},
+ {n:45,q:"Hb Embrio (HbE) primitif di yolk sac. Berapakah usia kehamilan HbE ditemukan dalam embrio?",o:["12 minggu","8 minggu","10 minggu","14 minggu","16 minggu"],e:"PPT: Hb embrionik ada s/d ~<b>minggu ke-12</b> (lalu digantikan HbF). Kunci sumber = 12 minggu."},
+ {n:46,q:"Apa jenis mutasi pada Hemoglobin H disease (HbH disease)?",o:["Delesi 3 rantai alfa","Delesi 4 rantai alfa","Delesi 2 rantai alfa","Delesi 1 rantai alfa","Delesi 2 rantai beta"],e:"HbH = --/-α (<b>3 gen α terdelesi</b>)."},
+ {n:47,q:"Apakah jenis asam amino yang dihasilkan dari translasi kodon 1 pada gambar di atas?",o:["Metionin","Glisin","Serin","Alanin"],e:"PPT (gambar translasi): kodon awal AUG → <b>Metionin</b>. Opsi ‘Glisin’ tertulis dua kali di sumber."},
+ {n:48,q:"Apakah warna pada gambar yang menunjukkan rantai alfa dari Hemoglobin?",o:["Kuning","Merah muda","Merah muda dan kuning","Biru tua","Biru tua dan merah muda"],e:"PPT (model globin): rantai α = <b>kuning</b>, β = merah muda (pink), heme = biru."},
+ {n:49,q:"Berapakah persentase kadar Hemoglobin Adult (HbA) pada Hydrops fetalis?",o:["0%","80%","20%","98%","50%"],e:"PPT (tabel): HbA hydrops fetalis = <b>0%</b>."},
+ {n:50,q:"Berapa persentase kadar Hb Barts pada Hydrops Fetalis?",o:["80%","0%","50%","98%","20%"],e:"PPT (tabel): Hb Barts hydrops fetalis = <b>70–80%</b>."},
+ {n:51,q:"Berapa persentase kadar Hemoglobin Adult (HbA) pada silent carrier thalassemia?",o:["98%","0%","50%","20%","80%"],e:"PPT (tabel): HbA silent carrier = <b>96–98%</b>."},
+ {n:52,q:"Berapakah segmen gen penyandi rantai α yang mengalami mutasi pada Hydrops Fetalis?",o:["Delesi 4 rantai α","Delesi 3 rantai α","Delesi 2 rantai α","Delesi 1 rantai α","Delesi 2 rantai β"],e:"Hydrops fetalis = --/-- (<b>4 gen α terdelesi</b>)."},
+ {n:53,q:"Apakah mutasi yang terjadi pada Hemoglobin H disease (HbH disease)?",o:["Delesi 3 rantai α","Delesi 4 rantai α","Delesi 2 rantai α","Delesi 1 rantai α"],e:"HbH = <b>3 gen α terdelesi</b> (--/-α)."},
+ {n:54,q:"Dimanakah lokus gen untuk sintesis rantai globin?",o:["Di kromosom 11 (rantai β) dan 16 (rantai α)","Di kromosom 16 (rantai β) dan 11 (rantai α)","Di kromosom 13 (rantai β) dan 16 (rantai α)","Di kromosom 11 (rantai β) dan 6 (rantai α)","Di kromosom 6 (rantai β) dan 11 (rantai α)"],e:"β → <b>kromosom 11</b>; α → <b>kromosom 16</b>."},
+ {n:55,q:"Hb Fetal (HbF) Hb utama fetus & newborn. Mulai kapan HbF disintesis di hepar?",o:["Sejak umur gestasi 5 minggu","Sejak umur gestasi 7 minggu","Sejak umur gestasi 9 minggu","Sejak umur gestasi 11 minggu","Sejak umur gestasi 13 minggu"],e:"Kunci sumber = <b>5 minggu</b> (sintesis HbF di hepar dimulai dini). Nilai eksak ini tidak dinyatakan di PPT — verifikasi ke dosen."},
+ {n:56,q:"Hb Embrio (HbE) di yolk sac. Berapa lama HbE akan tetap ditemukan dalam embrio?",o:["Umur gestasi 12 minggu","Umur gestasi 8 minggu","Umur gestasi 10 minggu","Umur gestasi 14 minggu","Umur gestasi 16 minggu"],e:"PPT: Hb embrionik bertahan s/d ~<b>minggu 12</b> (lalu digantikan HbF)."},
+ {n:57,q:"Berapakah jumlah rantai α dan rantai β yang menyusun struktur hemoglobin?",o:["2 rantai α dan 2 rantai β","1 rantai α dan 1 rantai β","3 rantai α dan 3 rantai β","4 rantai α dan 4 rantai β","5 rantai α dan 5 rantai β"],e:"PPT: Hb = tetramer <b>2α + 2β</b> (+ 4 heme)."},
+ {n:58,q:"Rantai polipeptida Hb terdiri dari α dan β. Berapakah asam amino pembentuk rantai α?",o:["141","142","143","144","145"],e:"PPT: rantai α = <b>141</b> asam amino."},
+ {n:59,q:"Apakah jenis varian Hb yang ditemukan pada kasus seperti gambar di atas?",o:["Hb S","Hb H","Hb C","Hb Bart","Hb Portland"],b:"image",e:"Bergantung gambar sumber. Kunci = <b>Hb S</b> (mis. gambaran sel sabit). Verifikasi gambar dosen."},
+ {n:60,q:"Manakah Hemoglobin yang paling dominan pada kasus di bawah?",o:["Hb Barts","Hb A","Hb H","Hb Gower1","Hb Portland 1"],b:"image",e:"Bergantung gambar sumber. Kunci = <b>Hb Barts</b> (konteks hydrops fetalis). Verifikasi gambar dosen."},
+ {n:61,q:"Varian Hb pada thalassemia α mayor, tersusun dari 4 rantai globin beta. Jenisnya?",o:["Hb H","Hb S","Hb Barts","Hb Constant Spring","Hb Portland"],e:"Tetramer 4 rantai β (β4) = <b>Hb H</b>. (Hb Barts = γ4.)"},
+ {n:62,q:"Mutasi terminal kodon dan ekstensi 31 asam amino → total 172 asam amino. Varian Hb?",o:["Hb Constant Spring","Hb H","Hb E","Hb Barts","Hb Portland"],e:"<b>Hb Constant Spring</b> (172 aa)."},
+ {n:63,q:"Mutasi di kodon 26 gen β-globin (glutamic acid → lysin). Varian Hb?",o:["Hb E","Hb S","Hb H","Hb Constant Spring","Hb Barts"],e:"<b>Hb E</b> = kodon 26 β, Glu→Lys."},
+ {n:64,q:"Thalassemia: homozigot punya HbF & Hb Lepore; heterozigot 15–25% HbF. Jenisnya?",o:["δβ⁺ thalassemia","δβ⁰ thalassemia","α⁰ thalassemia","α⁰ thalassemia","β⁺ thalassemia"],e:"PPT: <b>δβ⁺ thalassemia</b> (= Hb Lepore thalassemia); heterozigot 15–25% HbF. (Opsi c & d duplikat di sumber.)"},
+ {n:65,q:"α-thalassemia (kurang/tak ada 1+ rantai α). Susunan gen yang termasuk silent carrier?",o:["-α/αα","αα/αα","-α/-α","––/-α","––/––"],e:"PPT: silent carrier = <b>-α/αα</b> (1 gen α hilang)."},
+ {n:66,q:"Umur kehamilan ke-12 ada perubahan komposisi Hb janin. Hb paling dominan?",o:["Hb F","Hb Gower 1","Hb Gower 2","Hb Portland 1","Hb A"],e:"Minggu ke-12: <b>Hb F</b> dominan."},
+ {n:67,q:"Metaloprotein di eritrosit pengangkut O₂/CO₂. Apakah penyusunnya?",o:["4 molekul heme dan 4 rantai globin","3 molekul heme dan 3 rantai globin","2 molekul heme dan 2 rantai globin","1 molekul heme dan 1 rantai globin","4 molekul heme dan 2 rantai globin"],e:"PPT: Hb = <b>4 heme + 4 rantai globin</b> (2α + 2β)."},
+ {n:68,q:"β-thalassemia (kurang/tak ada sintesis rantai β). Kasus mana yang masih membentuk 10% rantai β normal?",o:["Thalassemia β⁺¹","Thalassemia β⁺²","Thalassemia β⁺³","Thalassemia β⁰","Thalassemia α⁺²"],e:"PPT: <b>β⁺¹</b> = 10% sintesis β normal."},
+ {n:69,q:"β-thalassemia. Kasus mana yang masih membentuk 50% rantai β normal?",o:["Thalassemia β⁺²","Thalassemia β⁺¹","Thalassemia β⁺³","Thalassemia β⁰","Thalassemia α⁺²"],e:"PPT: <b>β⁺²</b> = 50% sintesis β normal."},
+ {n:70,q:"α-thalassemia. Susunan gen yang termasuk minor/trait?",o:["-α/-α","-α/αα","αα/αα","-α/-α","––/-α"],e:"PPT: minor/trait = <b>-α/-α</b> (atau --/αα). Opsi a & d duplikat di sumber."},
+ {n:71,q:"Thalassemia karena kurang/tak ada 1+ rantai β. Kromosom mana yang mengalami mutasi?",o:["Kromosom 11","Kromosom 12","Kromosom 13","Kromosom 14","Kromosom 16"],e:"Gen β globin di <b>kromosom 11</b>."},
+ {n:72,q:"Thalassemia karena kurang/tak ada 1+ rantai α. Kromosom mana yang mengalami mutasi?",o:["Kromosom 16","Kromosom 15","Kromosom 14","Kromosom 13","Kromosom 11"],e:"Gen α globin di <b>kromosom 16</b>."},
+ {n:73,q:"Abnormalitas Hb penyebab hidrops fetalis. Rantai globin mana yang tidak terbentuk sama sekali?",o:["Alpha","Beta","Gamma","Delta","Epsilon"],e:"Hydrops fetalis Bart's = --/-- → rantai <b>α</b> tidak terbentuk sama sekali."}
+];
+
+const KEYLET=["A","B","C","D","E","F"];
+const BADGE={image:["b-image","Perlu gambar"],broken:["b-broken","Soal bermasalah"],stray:["b-stray","Nyasar"]};
+const SKEY="drill-hemoglobinopati-v2";
+const $=s=>document.querySelector(s);
+
+let store=loadStore();               // {answers, flags, theme, so, sq}
+let flagFilter=false;
+let shuffleOpts = store.so!==false;  // default: acak pilihan ON
+let shuffleQ = store.sq===true;      // default: urutan soal numerik
+let mode = store.mode==="exam" ? "exam" : "study";
+let submitted = store.submitted===true;
+let order=[];                        // positions -> DATA index
+let current=0;                       // position within order
+
+function buildOptOrders(){
+  DATA.forEach(it=>{
+    const base=it.o.map((t,i)=>({t,oi:i}));
+    it._order = shuffleOpts ? shuffle(base) : base;
+  });
+}
+function buildOrder(keepItem){
+  order = DATA.map((_,i)=>i);
+  if(shuffleQ) order = shuffle(order);
+  if(keepItem!=null){ const p=order.indexOf(keepItem); current = p<0?0:p; }
+}
+buildOptOrders();
+buildOrder();
+
+function loadStore(){ try{return JSON.parse(localStorage.getItem(SKEY))||{answers:{},flags:{}};}catch(e){return{answers:{},flags:{}};} }
+function save(){ try{localStorage.setItem(SKEY,JSON.stringify(store));}catch(e){} }
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// theme: default light per user preference
+(function initTheme(){
+  const t = store.theme || "light";
+  document.documentElement.setAttribute("data-theme", t);
+})();
+
+const grid=$("#grid"), stage=$("#stage"), examBar=$("#examBar");
+
+// in-page confirm (native confirm() is blocked in the artifact sandbox)
+const modal=$("#modal"), modalMsg=$("#modalMsg"); let modalResolve=null;
+function ask(msg){ return new Promise(res=>{ modalMsg.textContent=msg; modal.hidden=false; modalResolve=res; }); }
+function closeModal(v){ modal.hidden=true; const r=modalResolve; modalResolve=null; if(r) r(v); }
+$("#modalYes").addEventListener("click",()=>closeModal(true));
+$("#modalNo").addEventListener("click",()=>closeModal(false));
+modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(false); });
+
+function buildGrid(){
+  grid.innerHTML="";
+  order.forEach((di,pos)=>{
+    const it=DATA[di];
+    const c=document.createElement("button");
+    c.className="chip"; c.type="button";
+    c.textContent=pos+1;
+    c.title="Soal "+(pos+1)+" (asli #"+it.n+") · "+it.q.slice(0,40)+(it.q.length>40?"…":"");
+    const rec=store.answers[it.n];
+    if(rec){
+      if(mode==="study" || submitted) c.classList.add(rec.mode==="reveal"?"revealed":(rec.oi===0?"correct":"wrong"));
+      else c.classList.add("picked");
+    }
+    if(store.flags[it.n]) c.classList.add("flagged");
+    if(pos===current) c.classList.add("current");
+    if(flagFilter && !store.flags[it.n]) c.classList.add("hiddenf");
+    c.addEventListener("click",()=>{current=pos; renderAll();
+      stage.scrollIntoView({behavior:"smooth",block:"start"});});
+    grid.appendChild(c);
+  });
+}
+
+function renderStage(){
+  const it=DATA[order[current]];
+  const rec=store.answers[it.n];
+  const reveal=(mode==="study"&&rec)||(mode==="exam"&&submitted);
+  stage.innerHTML="";
+  const card=document.createElement("section"); card.className="card";
+
+  const head=document.createElement("div"); head.className="qhead";
+  const num=document.createElement("span"); num.className="qnum"; num.textContent="Soal "+(current+1); head.appendChild(num);
+  const ref=document.createElement("span"); ref.className="qref"; ref.textContent="asli #"+it.n; head.appendChild(ref);
+  if(it.b&&BADGE[it.b]){const bd=document.createElement("span");bd.className="badge "+BADGE[it.b][0];bd.textContent=BADGE[it.b][1];head.appendChild(bd);}
+  if(reveal){
+    const st=document.createElement("span"); st.className="qstate ";
+    if(rec&&rec.mode!=="reveal"){ st.className+=rec.oi===0?"ok":"no"; st.textContent=rec.oi===0?"Benar":"Salah"; }
+    else if(rec&&rec.mode==="reveal"){ st.className+="rv"; st.textContent="Dilihat"; }
+    else { st.className+="rv"; st.textContent="Kosong"; }
+    head.appendChild(st);
+  }
+  const fb=document.createElement("button"); fb.className="flagbtn"+(store.flags[it.n]?" on":""); fb.type="button";
+  fb.innerHTML=(store.flags[it.n]?"⚑":"⚐")+" "+(store.flags[it.n]?"Ditandai":"Tandai");
+  fb.addEventListener("click",()=>{ if(store.flags[it.n])delete store.flags[it.n]; else store.flags[it.n]=true; save(); renderAll(); });
+  head.appendChild(fb);
+  card.appendChild(head);
+
+  const qt=document.createElement("p"); qt.className="qtext"; qt.textContent=it.q; card.appendChild(qt);
+
+  const opts=document.createElement("div"); opts.className="opts";
+  it._order.forEach((ob,idx)=>{
+    const b=document.createElement("button"); b.className="opt"; b.type="button"; b.dataset.oi=ob.oi;
+    const k=document.createElement("span"); k.className="key"; k.textContent=KEYLET[idx];
+    const t=document.createElement("span"); t.className="otext"; t.textContent=ob.t;
+    b.appendChild(k); b.appendChild(t);
+    if(reveal){
+      b.disabled=true;
+      if(ob.oi===0) b.classList.add("correct");
+      else if(rec&&rec.oi===ob.oi&&rec.mode!=="reveal") b.classList.add("wrong");
+      else b.classList.add("dim");
+    } else {
+      if(mode==="exam"&&rec&&rec.oi===ob.oi) b.classList.add("picked");
+      b.addEventListener("click",()=>answer(it,mode==="exam"?"pick":"guess",ob.oi));
+    }
+    opts.appendChild(b);
+  });
+  card.appendChild(opts);
+
+  if(reveal){
+    const ex=document.createElement("div"); ex.className="exp";
+    ex.innerHTML='<span class="lab">Kunci: '+KEYLET[0]+" — "+escapeHtml(it.o[0])+"</span>"+it.e;
+    card.appendChild(ex);
+  } else if(mode==="study"){
+    const foot=document.createElement("div"); foot.className="qfoot";
+    const rv=document.createElement("button"); rv.className="reveal-btn"; rv.type="button"; rv.textContent="Lihat kunci";
+    rv.addEventListener("click",()=>answer(it,"reveal",0));
+    foot.appendChild(rv); card.appendChild(foot);
+  }
+  stage.appendChild(card);
+
+  $("#pCount").textContent=(current+1)+" / "+order.length;
+  $("#pPrev").disabled=current===0;
+  $("#pNext").disabled=current===order.length-1;
+}
+
+function decorate(card,it,rec){
+  card.querySelectorAll(".opt").forEach(b=>{
+    b.disabled=true; const oi=+b.dataset.oi;
+    if(oi===0)b.classList.add("correct");
+    else if(rec.mode==="guess"&&oi===rec.oi)b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  const ex=document.createElement("div"); ex.className="exp";
+  ex.innerHTML='<span class="lab">Kunci: '+KEYLET[0]+" — "+escapeHtml(it.o[0])+"</span>"+it.e;
+  card.appendChild(ex);
+}
+
+function answer(it,kind,oi){
+  if(mode==="study"){ if(store.answers[it.n]) return; store.answers[it.n]={oi,mode:kind}; }
+  else { if(submitted) return; store.answers[it.n]={oi,mode:"pick"}; }
+  save(); renderStage(); buildGrid(); updateScore(); updateExamBar();
+}
+
+function escapeHtml(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+function updateScore(){
+  const N=DATA.length; let benar=0,salah=0,done=0,filled=0;
+  for(const it of DATA){
+    const rec=store.answers[it.n]; if(!rec) continue; filled++;
+    if(mode==="exam"&&!submitted) continue;
+    done++;
+    const graded = mode==="exam" ? true : rec.mode==="guess";
+    if(graded){ rec.oi===0?benar++:salah++; }
+  }
+  const el=$("#score");
+  if(mode==="exam"&&!submitted){
+    el.innerHTML='<span>Terisi <b style="color:var(--accent-ink)">'+filled+'</b>/'+N+'</span>';
+    $("#bar").style.width=(filled/N*100).toFixed(1)+"%";
+  } else {
+    el.innerHTML='<span>Benar <b>'+benar+'</b></span><span class="dot"></span><span class="s2">Salah '+salah+'</span><span class="dot"></span><span>'+done+'/'+N+'</span>';
+    $("#bar").style.width=(done/N*100).toFixed(1)+"%";
+  }
+}
+
+function updateExamBar(){
+  if(mode!=="exam"){ examBar.hidden=true; examBar.innerHTML=""; return; }
+  examBar.hidden=false; examBar.innerHTML="";
+  let filled=0; for(const it of DATA) if(store.answers[it.n]) filled++;
+  const info=document.createElement("span"); info.className="et";
+  if(!submitted){
+    info.innerHTML="Mode ujian aktif — kunci disembunyikan.<small>Terisi "+filled+" dari "+DATA.length+" soal. Jawaban masih bisa diubah.</small>";
+    examBar.appendChild(info);
+    const b=document.createElement("button"); b.className="btn big-btn"; b.textContent="Selesai & koreksi";
+    b.addEventListener("click",async ()=>{
+      if(filled<DATA.length && !(await ask("Masih ada "+(DATA.length-filled)+" soal kosong. Koreksi sekarang?"))) return;
+      submitted=true; store.submitted=true; save(); renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+    });
+    examBar.appendChild(b);
+  } else {
+    let benar=0; for(const it of DATA){const r=store.answers[it.n]; if(r&&r.oi===0)benar++;}
+    const pct=Math.round(benar/DATA.length*100);
+    info.innerHTML="Hasil ujian: <b>"+benar+" / "+DATA.length+"</b> ("+pct+"%)<small>Kunci &amp; penjelasan sudah terbuka di tiap soal.</small>";
+    examBar.appendChild(info);
+    const b=document.createElement("button"); b.className="btn"; b.textContent="Ulangi ujian";
+    b.addEventListener("click",()=>{
+      store.answers={}; submitted=false; store.submitted=false; save();
+      buildOptOrders(); buildOrder(); current=0; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+    });
+    examBar.appendChild(b);
+  }
+}
+
+function renderAll(){ buildGrid(); renderStage(); updateScore(); updateExamBar(); }
+
+// pager
+$("#pPrev").addEventListener("click",()=>{if(current>0){current--;renderAll();}});
+$("#pNext").addEventListener("click",()=>{if(current<order.length-1){current++;renderAll();}});
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="BUTTON"&&(e.key===" "||e.key==="Enter"))return;
+  if(e.key==="ArrowLeft"&&current>0){current--;renderAll();}
+  else if(e.key==="ArrowRight"&&current<order.length-1){current++;renderAll();}
+  else if(e.key.toLowerCase()==="f"){const it=DATA[order[current]];if(store.flags[it.n])delete store.flags[it.n];else store.flags[it.n]=true;save();renderAll();}
+});
+
+// tools
+$("#tFlagFilter").addEventListener("click",e=>{
+  flagFilter=!flagFilter; e.currentTarget.setAttribute("aria-pressed",flagFilter?"true":"false"); buildGrid();
+});
+$("#tOpts").addEventListener("click",e=>{
+  shuffleOpts=!shuffleOpts; store.so=shuffleOpts; save();
+  e.currentTarget.setAttribute("aria-pressed",shuffleOpts?"true":"false");
+  buildOptOrders(); renderStage();
+});
+$("#tQord").addEventListener("click",e=>{
+  shuffleQ=!shuffleQ; store.sq=shuffleQ; save();
+  e.currentTarget.setAttribute("aria-pressed",shuffleQ?"true":"false");
+  const keep=order[current]; buildOrder(keep); renderAll();
+});
+$("#tExam").addEventListener("click",async ()=>{
+  const turningOn = mode!=="exam";
+  const has = Object.keys(store.answers).length>0;
+  if(has && !(await ask((turningOn?"Masuk Mode Ujian":"Kembali ke mode latihan")+" akan menghapus jawaban saat ini. Lanjut?"))) return;
+  mode = turningOn?"exam":"study"; submitted=false;
+  store.mode=mode; store.submitted=false; if(has) store.answers={}; save();
+  $("#tExam").setAttribute("aria-pressed",turningOn?"true":"false");
+  current=0; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+});
+$("#tReset").addEventListener("click",async ()=>{
+  if(!(await ask("Hapus semua jawaban & tanda, lalu mulai ulang?"))) return;
+  store.answers={}; store.flags={}; submitted=false; store.submitted=false; save();
+  buildOptOrders(); buildOrder(); current=0; renderAll();
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+$("#tTheme").addEventListener("click",()=>{
+  const root=document.documentElement;
+  const dark=root.getAttribute("data-theme")==="dark";
+  const next=dark?"light":"dark";
+  root.setAttribute("data-theme",next); store.theme=next; save();
+});
+
+$("#tOpts").setAttribute("aria-pressed",shuffleOpts?"true":"false");
+$("#tQord").setAttribute("aria-pressed",shuffleQ?"true":"false");
+$("#tExam").setAttribute("aria-pressed",mode==="exam"?"true":"false");
+renderAll();
+</script>
